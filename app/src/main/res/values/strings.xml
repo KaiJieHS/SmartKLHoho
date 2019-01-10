@@ -74,4 +74,8 @@
     <string name="responserecord">Response Record</string>
     <string name="title_activity_view_response">ViewResponseActivity</string>
     <string name="title_activity_add_feedback">AddFeedbackActivity</string>
+    <string name="line">Transport Line</string>
+    <string name="scheduleURL">Schedule URL</string>
+    <string name="newRecord">New record</string>
+    <string name="update">Update</string>
 </resources>
