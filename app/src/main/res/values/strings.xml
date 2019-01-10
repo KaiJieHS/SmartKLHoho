@@ -78,4 +78,6 @@
     <string name="scheduleURL">Schedule URL</string>
     <string name="newRecord">New record</string>
     <string name="update">Update</string>
+    <string name="select">Select</string>
+    <string name="delete">Delete</string>
 </resources>

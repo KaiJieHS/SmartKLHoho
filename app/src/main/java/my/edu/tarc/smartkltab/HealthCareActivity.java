@@ -23,6 +23,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,15 +56,16 @@ public class HealthCareActivity extends AppCompatActivity{
 
     public static final String TAG = "my.edu.tarc.testsmartkl";
     ListView listViewHealthCare;
+    private HealthCareAdapter healthcareAdapter;
     List<HealthCare> hcList;
     private ProgressDialog pDialog;
     //TODO: Please update the URL to point to your own server
     private static String GET_URL = "https://circumgyratory-gove.000webhostapp.com/search_healthcare.php";
     private static String SEARCH_URL;
-    RequestQueue queue;
+    private List<HealthCare> UserSelection = new ArrayList<>();
+    MenuItem updateButton;
 
-    //private HealthCareAdapterTest healthcareAdapter;
-    //private RecyclerView recyclerView;
+    RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,12 @@ public class HealthCareActivity extends AppCompatActivity{
         if (!isConnected()) {
             Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_LONG).show();
         }
+        downloadHealthCare(getApplicationContext(), GET_URL);
+
+        listViewHealthCare.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listViewHealthCare.setMultiChoiceModeListener(modeListener);
+       healthcareAdapter = new HealthCareAdapter(this,0,hcList);
+       listViewHealthCare.setAdapter(healthcareAdapter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -90,63 +98,6 @@ public class HealthCareActivity extends AppCompatActivity{
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        downloadHealthCare(getApplicationContext(), GET_URL);
-
-
-        /*recyclerView = findViewById(R.id.listViewHealthCare);
-        healthcareAdapter = new HealthCareAdapterTest(this, hcList);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(healthcareAdapter);
-
-
-        // adding item touch helper
-        // only ItemTouchHelper.LEFT added to detect Right to Left swipe
-        // if you want both Right -> Left and Left -> Right
-        // add pass ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT as param
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);*/
-
-
-
-       HealthCareAdapter healthcareAdapter = new HealthCareAdapter(this,0,hcList);
-       listViewHealthCare.setAdapter(healthcareAdapter);
-
-
-        /*healthcareAdapter = new HealthCareAdapterTest(HealthCareActivity.this,hcList);
-
-        final SwipeToDismissTouchListener<ListViewAdapter> touchListener =
-                new SwipeToDismissTouchListener<>(
-                        new ListViewAdapter(listViewHealthCare),
-                        new SwipeToDismissTouchListener.DismissCallbacks<ListViewAdapter>() {
-                            @Override
-                            public boolean canDismiss(int position) {
-                                return true;
-                            }
-
-                            @Override
-                            public void onDismiss(ListViewAdapter view, int position) {
-                                healthcareAdapter.remove(position);
-                            }
-                        });
-
-        listViewHealthCare.setOnTouchListener(touchListener);
-        listViewHealthCare.setOnScrollListener((AbsListView.OnScrollListener) touchListener.makeScrollListener());*/
-        /*listViewHealthCare.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (touchListener.existPendingDismisses()) {
-                    touchListener.undoPendingDismiss();
-                } else {
-                    Toast.makeText(HealthCareActivity.this, "Position " + position,Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-*/
 
 
         listViewHealthCare.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -167,18 +118,75 @@ public class HealthCareActivity extends AppCompatActivity{
 
     }
 
+    AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+            if(UserSelection.contains(hcList.get(position))){
+                 UserSelection.remove(hcList.get(position));
+            }else{
+                UserSelection.add(hcList.get(position));
+            }
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
 
-    @Override
+            mode.setTitle(UserSelection.size() + " items selected...");
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            updateButton = menu.findItem(R.id.action_update);
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.action_delete:
+                    healthcareAdapter.removeItems(UserSelection);
+                    mode.finish();
+                    return true;
+                case R.id.action_update:
+                    healthcareAdapter.updateItems(UserSelection);
+                    mode.finish();
+                    return true;
+                default:
+                        return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            UserSelection.clear();
+        }
+    };
+
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_healthcare, menu);
 
         return true;
-    }
+    }*/
 
 
-    @Override
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
@@ -192,35 +200,8 @@ public class HealthCareActivity extends AppCompatActivity{
         }
 
         return super.onOptionsItemSelected(item);
-    }
-    /*@Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
-        if (viewHolder instanceof HealthCareAdapterTest.ViewHolder) {
-            // get the removed item name to display it in snack bar
-            String name = hcList.get(viewHolder.getAdapterPosition()).getHcBranchName();
+    }*/
 
-            // backup of removed item for undo purpose
-            final HealthCare deletedItem = hcList.get(viewHolder.getAdapterPosition());
-            final int deletedIndex = viewHolder.getAdapterPosition();
-
-            // remove the item from recycler view
-            healthcareAdapter.removeItem(viewHolder.getAdapterPosition());
-
-            // showing snack bar with Undo option
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.fullLayoutForHealthCare) , name + " removed from cart!", Snackbar.LENGTH_LONG);
-            snackbar.setAction("UNDO", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    // undo is selected, restore the deleted item
-                    healthcareAdapter.restoreItem(deletedItem, deletedIndex);
-                }
-            });
-            snackbar.setActionTextColor(Color.YELLOW);
-            snackbar.show();
-        }
-    }
-*/
     private boolean isConnected() {
         ConnectivityManager cm =
                 (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -325,9 +306,7 @@ public class HealthCareActivity extends AppCompatActivity{
         queue.add(jsonObjectRequest);
     }
 
-    //rmb change here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    private void loadHealthCare() {
+        private void loadHealthCare() {
         final HealthCareAdapter adapter = new HealthCareAdapter(this, R.layout.activity_health_care, hcList);
         //listViewHealthCare.setAdapter(adapter);
         listViewHealthCare.setAdapter(adapter);

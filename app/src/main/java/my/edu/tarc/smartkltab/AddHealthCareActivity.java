@@ -8,7 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -22,22 +23,19 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UpdateHealthCare extends AppCompatActivity {
+public class AddHealthCareActivity extends AppCompatActivity {
 
-    String items[] = new String [] {"HcBranchName","HcBranchLocation","HcContactNum"};
-    EditText editTextUpdateContent;
-    Spinner spinnerUpdateItem;
-    String updateItem,updateContent;
-            int HcID;
-
+    EditText editTextName, editTextAddress, editTextContact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_health_care);
+        setContentView(R.layout.activity_add_health_care);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,13 +43,10 @@ public class UpdateHealthCare extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        HcID = getIntent().getIntExtra("HcID",0);
+        editTextName = findViewById(R.id.editTextName);
+        editTextAddress =  findViewById(R.id.editTextAddress);
+        editTextContact = findViewById(R.id.editTextContact);
 
-        spinnerUpdateItem = findViewById(R.id.spinnerUpdateItem);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,android.R.id.text1,items);
-        spinnerUpdateItem.setAdapter(adapter);
-
-        editTextUpdateContent = findViewById(R.id.editTextUpdateContent);
     }
 
     @Override
@@ -60,29 +55,31 @@ public class UpdateHealthCare extends AppCompatActivity {
         return true;
     }
 
-    public void updateRecordHc(View v) {
+    public void saveRecordHc(View v) {
+        HealthCare healthcare = new HealthCare();
 
-        updateItem = spinnerUpdateItem.getSelectedItem().toString();
-        updateContent = editTextUpdateContent.getText().toString();
+        healthcare.setHcBranchName(editTextName.getText().toString());
+        healthcare.setHcBranchLocation(editTextAddress.getText().toString());
+        healthcare.setHcContactNumber(editTextContact.getText().toString());
+
 
         try {
             //TODO: Please update the URL to point to your own server
-            updateHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/update_healthcare.php",HcID, updateItem, updateContent);
+            addHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/insert_healthcare.php", healthcare);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    public void updateHealthCare(Context context, String url,int id, String updateItem, String updateContent) {
+    public void addHealthCare(Context context, String url, final HealthCare healthcare) {
         //mPostCommentResponse.requestStarted();
         RequestQueue queue = Volley.newRequestQueue(context);
-        url = url + "?HcID=" + id + "&UpdateItem=" + updateItem + "&UpdateContent=" + updateContent;
 
         //Send data
         try {
-            StringRequest getRequest = new StringRequest(
-                    Request.Method.GET,
+            StringRequest postRequest = new StringRequest(
+                    Request.Method.POST,
                     url,
                     new Response.Listener<String>() {
                         @Override
@@ -96,7 +93,7 @@ public class UpdateHealthCare extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                                 }else{
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(UpdateHealthCare.this,HealthCareActivity.class);
+                                    Intent intent = new Intent(AddHealthCareActivity.this,HealthCareActivity.class);
                                     startActivity(intent);
                                 }
                             } catch (JSONException e) {
@@ -110,11 +107,12 @@ public class UpdateHealthCare extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Error. " + error.toString(), Toast.LENGTH_LONG).show();
                         }
                     }) {
-                /*@Override
+                @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
-                    //params.put("TransportType", transport.getTransportType());
-                    //params.put("TransportLine", transport.getTransportLine());
+                    params.put("HcBranchName", healthcare.getHcBranchName());
+                    params.put("HcBranchLocation", healthcare.getHcBranchLocation());
+                    params.put("HcContactNum", healthcare.getHcContactNumber());
                     return params;
                 }
 
@@ -123,11 +121,12 @@ public class UpdateHealthCare extends AppCompatActivity {
                     Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/x-www-form-urlencoded");
                     return params;
-                }*/
+                }
             };
-            queue.add(getRequest);
+            queue.add(postRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

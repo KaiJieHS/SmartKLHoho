@@ -30,6 +30,34 @@
             android:name=".AddFeedbackActivity"
             android:label="@string/title_activity_add_feedback"
             android:theme="@style/AppTheme"></activity>
+        <activity
+            android:name=".TransportActivity"
+            android:label="@string/title_activity_transport"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="my.edu.tarc.smartkltab.MainActivity" />
+        </activity>
+        <activity android:name=".TransportLine" />
+        <activity
+            android:name=".HealthCareActivity"
+            android:label="@string/title_activity_health_care"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="my.edu.tarc.smartkltab.MainActivity" />
+        </activity>
+        <activity
+            android:name=".OrganizationActivity"
+            android:label="@string/title_activity_organization"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="my.edu.tarc.smartkltab.MainActivity" />
+        </activity>
+        <activity android:name=".AddHealthCareActivity" />
+        <activity android:name=".AddTransportLineActivity" />
+        <activity android:name=".UpdateHealthCare"></activity>
     </application>
 
 </manifest>

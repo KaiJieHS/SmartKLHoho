@@ -32,40 +32,27 @@ public class FragmentHome extends Fragment {
         });
 
         Button buttonOrganisation = (Button) view.findViewById(R.id.button4);
-        buttonTransport.setOnClickListener(new View.OnClickListener()
+        buttonOrganisation.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(getActivity(), TransportActivity.class);
+                Intent intent = new Intent(getActivity(), OrganizationActivity.class);
                 startActivity(intent);
             }
         });
 
-        Button buttonTransport = (Button) view.findViewById(R.id.button2);
-        buttonTransport.setOnClickListener(new View.OnClickListener()
+        Button buttonHealthCare = (Button) view.findViewById(R.id.button6);
+        buttonHealthCare.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(getActivity(), TransportActivity.class);
+                Intent intent = new Intent(getActivity(), HealthCareActivity.class);
                 startActivity(intent);
             }
         });
         return view;
     }
 
-    public void Transport(View v){
-
-    }
-
-    public void HealthCare(View v){
-        Intent intent = new Intent(getActivity(), HealthCareActivity.class);
-        startActivity(intent);
-    }
-
-    public void Organization(View v){
-        Intent intent = new Intent(getActivity(), OrganizationActivity.class);
-        startActivity(intent);
-    }
 }

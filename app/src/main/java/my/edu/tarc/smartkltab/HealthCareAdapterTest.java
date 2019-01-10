@@ -139,7 +139,6 @@ public class HealthCareAdapterTest extends RecyclerView.Adapter<HealthCareAdapte
             textViewHcBranchName = view.findViewById(R.id.textViewHcBranchName);
             textViewHcBranchLocation = view.findViewById(R.id.textViewHcBranchLocation);
             textViewHcContactNumber = view.findViewById(R.id.textViewHcContactNumber);
-            containerHealthCare = view.findViewById(R.id.containerHealthCare);
         }
     }
 

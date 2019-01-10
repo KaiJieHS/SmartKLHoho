@@ -1,7 +1,6 @@
 package my.edu.tarc.smartkltab;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,19 +24,17 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UpdateHealthCare extends AppCompatActivity {
+public class AddTransportLineActivity extends AppCompatActivity {
 
-    String items[] = new String [] {"HcBranchName","HcBranchLocation","HcContactNum"};
-    EditText editTextUpdateContent;
-    Spinner spinnerUpdateItem;
-    String updateItem,updateContent;
-            int HcID;
+    String items[] = new String [] {"KTM","LRT","Bus"};
+    EditText editTextTransportLine, editTextScheduleURL;
+    Spinner spinnerType;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_health_care);
+        setContentView(R.layout.activity_add_transport_line);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,13 +42,12 @@ public class UpdateHealthCare extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        HcID = getIntent().getIntExtra("HcID",0);
-
-        spinnerUpdateItem = findViewById(R.id.spinnerUpdateItem);
+        spinnerType = findViewById(R.id.spinnerTransportType);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,android.R.id.text1,items);
-        spinnerUpdateItem.setAdapter(adapter);
+        spinnerType.setAdapter(adapter);
 
-        editTextUpdateContent = findViewById(R.id.editTextUpdateContent);
+        editTextTransportLine = findViewById(R.id.editTextTransportLine);
+        editTextScheduleURL =  findViewById(R.id.editTextScheduleURL);
     }
 
     @Override
@@ -60,29 +56,31 @@ public class UpdateHealthCare extends AppCompatActivity {
         return true;
     }
 
-    public void updateRecordHc(View v) {
+    public void saveRecordTl(View v) {
+        Transport transport = new Transport();
 
-        updateItem = spinnerUpdateItem.getSelectedItem().toString();
-        updateContent = editTextUpdateContent.getText().toString();
+        transport.setTransportType(spinnerType.getSelectedItem().toString());
+        transport.setTransportLine(editTextTransportLine.getText().toString());
+        transport.setTransportSchedule(editTextScheduleURL.getText().toString());
+
 
         try {
             //TODO: Please update the URL to point to your own server
-            updateHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/update_healthcare.php",HcID, updateItem, updateContent);
+            addTransport(this, "https://circumgyratory-gove.000webhostapp.com/insert_transport.php", transport);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    public void updateHealthCare(Context context, String url,int id, String updateItem, String updateContent) {
+    public void addTransport(Context context, String url, final Transport transport) {
         //mPostCommentResponse.requestStarted();
         RequestQueue queue = Volley.newRequestQueue(context);
-        url = url + "?HcID=" + id + "&UpdateItem=" + updateItem + "&UpdateContent=" + updateContent;
 
         //Send data
         try {
-            StringRequest getRequest = new StringRequest(
-                    Request.Method.GET,
+            StringRequest postRequest = new StringRequest(
+                    Request.Method.POST,
                     url,
                     new Response.Listener<String>() {
                         @Override
@@ -96,8 +94,7 @@ public class UpdateHealthCare extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                                 }else{
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(UpdateHealthCare.this,HealthCareActivity.class);
-                                    startActivity(intent);
+                                    finish();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -110,11 +107,12 @@ public class UpdateHealthCare extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Error. " + error.toString(), Toast.LENGTH_LONG).show();
                         }
                     }) {
-                /*@Override
+                @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
-                    //params.put("TransportType", transport.getTransportType());
-                    //params.put("TransportLine", transport.getTransportLine());
+                    params.put("TransportType", transport.getTransportType());
+                    params.put("TransportLine", transport.getTransportLine());
+                    params.put("TransportSchedule", transport.getTransportSchedule());
                     return params;
                 }
 
@@ -123,9 +121,9 @@ public class UpdateHealthCare extends AppCompatActivity {
                     Map<String, String> params = new HashMap<>();
                     params.put("Content-Type", "application/x-www-form-urlencoded");
                     return params;
-                }*/
+                }
             };
-            queue.add(getRequest);
+            queue.add(postRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
