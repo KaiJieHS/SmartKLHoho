@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#03A9F4</color>
+    <color name="colorPrimaryDark">#0288d0</color>
+    <color name="colorAccent">#ff4081</color>
+    <color name="colorBank">#fffec1</color>
+    <color name="colorTransport">#eaefd8</color>
+    <color name="colorEvents">#e5ddec</color>
+    <color name="colorHealthCare">#d9ecf2</color>
+    <color name="colorEducation">#fdb9b6</color>
+    <color name="colorOrganization">#d3f0d2</color>
+    <color name="tabtextcolor">#FFF</color>
+    <color name="tabindicatorcolor">#2d2d2d</color>
+</resources>
+
