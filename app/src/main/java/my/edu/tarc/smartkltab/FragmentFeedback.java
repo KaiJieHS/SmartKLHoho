@@ -3,6 +3,7 @@ package my.edu.tarc.smartkltab;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -34,13 +35,14 @@ import java.util.List;
 
 public class FragmentFeedback extends Fragment {
     View view;
-    public static final String TAG = "my.edu.tarc.testsmartkl";
+    public static final String TAG = "my.edu.tarc.smartkltab";
     ListView listViewFeedback;
     List<Feedback> fbList;
     private static String SEARCH_URL = "https://circumgyratory-gove.000webhostapp.com/search_feedback.php";
     private static String SEARCHWAITINGLIST_URL = "https://circumgyratory-gove.000webhostapp.com/search_feedbackwaitinglist.php";
     RequestQueue queue;
-    private final String currentUserType = "user";
+    private SharedPreferences sharedPreferences;
+    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
 
     public FragmentFeedback() {
     }
@@ -53,15 +55,13 @@ public class FragmentFeedback extends Fragment {
         view = inflater.inflate(R.layout.feedback_fragment,container,false);
         listViewFeedback = (ListView) view.findViewById(R.id.listViewFeedback);
         fbList = new ArrayList<>();
+        sharedPreferences = getActivity().getSharedPreferences(FILE_NAME, getActivity().MODE_PRIVATE);
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab2);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String currentid =String.valueOf(2);
                 Intent intent = new Intent(getActivity(), AddFeedbackActivity.class);
-                intent.putExtra("currentUserType", currentUserType);
-                intent.putExtra("currentid2", currentid);
                 startActivity(intent);
             }
         });
@@ -69,13 +69,12 @@ public class FragmentFeedback extends Fragment {
         if (!isConnected()) {
             Toast.makeText(getActivity().getApplicationContext(), "No network", Toast.LENGTH_LONG).show();
         }
-
-        if (currentUserType.equals("admin")){
+String type=sharedPreferences.getString("usertype","");
+        if (type.equals("admin")){
             searchWaitingListFeedback(getActivity().getApplicationContext());
-
-        }else {
+        }else if (type.equals("user")){
             fab.setVisibility(view.VISIBLE);
-            searchFeedback(getActivity().getApplicationContext(), 1);
+            searchFeedback(getActivity().getApplicationContext(), sharedPreferences.getInt("id",0));
         }
 
         listViewFeedback.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -84,11 +83,8 @@ public class FragmentFeedback extends Fragment {
                 String fbID = String.valueOf(fbList.get(position).getFeedbackID());
                 String subject = fbList.get(position).getSubject();
                 String desc = fbList.get(position).getDescription();
-                String currentid =String.valueOf(1);
                 Intent intent = new Intent(getActivity(), ViewResponseActivity.class);
                 intent.putExtra("currentFeedbackID", fbID);
-                intent.putExtra("currentUserType", currentUserType);
-                intent.putExtra("currentid", currentid);
                 intent.putExtra("desc", desc);
                 intent.putExtra("subject", subject);
                 startActivity(intent);
@@ -134,14 +130,14 @@ public class FragmentFeedback extends Fragment {
                             loadFeedback();
 
                         } catch (Exception e) {
-                            Toast.makeText(getActivity().getApplicationContext(), "Error:" + e.getMessage(), Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getActivity().getApplicationContext(), "Error:" + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Toast.makeText(getActivity().getApplicationContext(), "Error" + volleyError.getMessage(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getActivity().getApplicationContext(), "Error" + volleyError.getMessage(), Toast.LENGTH_LONG).show();
 
                     }
                 });
@@ -209,10 +205,10 @@ public class FragmentFeedback extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (currentUserType.equals("admin")){
+        if (sharedPreferences.getString("usertype","").equals("admin")){
             searchWaitingListFeedback(getActivity().getApplicationContext());
         }else {
-            searchFeedback(getActivity().getApplicationContext(), 1);
+            searchFeedback(getActivity().getApplicationContext(), sharedPreferences.getInt("id",0));
         }
 
     }

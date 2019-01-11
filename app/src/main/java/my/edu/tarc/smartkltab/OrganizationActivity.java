@@ -1,8 +1,10 @@
 package my.edu.tarc.smartkltab;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -11,7 +13,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +36,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.VISIBLE;
+
 public class OrganizationActivity extends AppCompatActivity {
 
     public static final String TAG = "my.edu.tarc.testsmartkl";
@@ -38,7 +47,12 @@ public class OrganizationActivity extends AppCompatActivity {
     //TODO: Please update the URL to point to your own server
     private static String GET_URL = "https://circumgyratory-gove.000webhostapp.com/select_organization.php";
     RequestQueue queue;
-
+    private List<Organization> UserSelection = new ArrayList<>();
+    MenuItem updateButton;
+    private OrganizationAdapter organizationAdapter;
+    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
+    private SharedPreferences sharedPreferences;
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,22 +63,34 @@ public class OrganizationActivity extends AppCompatActivity {
         listViewOrganization = (ListView) findViewById(R.id.listViewOrganization);
         pDialog = new ProgressDialog(this);
         ogList = new ArrayList<>();
+        sharedPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
+
 
         if (!isConnected()) {
             Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_LONG).show();
         }
 
+
+        organizationAdapter = new OrganizationAdapter(this,0,ogList);
+        listViewOrganization.setAdapter(organizationAdapter);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(OrganizationActivity.this, AddOrganizationActivity.class);
+                startActivity(intent);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         downloadOrganization(getApplicationContext(), GET_URL);
+        if(sharedPreferences.getString("usertype","").equals("admin")){
+            listViewOrganization.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+            listViewOrganization.setMultiChoiceModeListener(modeListener);
+            fab.setVisibility(VISIBLE);
+        }
+
 
         listViewOrganization.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -80,6 +106,64 @@ public class OrganizationActivity extends AppCompatActivity {
             }
         });
     }
+
+    AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+            if(UserSelection.contains(ogList.get(position))){
+                UserSelection.remove(ogList.get(position));
+            }else{
+                UserSelection.add(ogList.get(position));
+            }
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
+
+            mode.setTitle(UserSelection.size() + " items selected...");
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            updateButton = menu.findItem(R.id.action_update);
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.action_delete:
+                    organizationAdapter.removeItems(UserSelection);
+                    mode.finish();
+                    return true;
+                case R.id.action_update:
+                    organizationAdapter.updateItems(UserSelection);
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            UserSelection.clear();
+        }
+    };
 
     private boolean isConnected() {
         ConnectivityManager cm =

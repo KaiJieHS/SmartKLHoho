@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -11,7 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -30,6 +36,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.VISIBLE;
+
 public class TransportLine extends AppCompatActivity {
 
     public static final String TAG = "my.edu.tarc.testsmartkl";
@@ -44,6 +52,11 @@ public class TransportLine extends AppCompatActivity {
     RequestQueue queue;
     RequestQueue queue1;
     List<Schedule> tsList;
+    private List<Transport> UserSelection = new ArrayList<>();
+    MenuItem updateButton;
+    private TransportAdapter transportAdapter;
+    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +76,21 @@ public class TransportLine extends AppCompatActivity {
         pDialog1 = new ProgressDialog(this);
         tpList = new ArrayList<>();
         tsList = new ArrayList<>();
+        sharedPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
 
         if (!isConnected()) {
             Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_LONG).show();
         }
-        searchTransport(getApplicationContext(),transportType);
 
+
+        transportAdapter = new TransportAdapter(this,0,tpList);
+        listViewTransportLine.setAdapter(transportAdapter);
+
+
+        if(sharedPreferences.getString("usertype","").equals("admin")){
+            listViewTransportLine.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+            listViewTransportLine.setMultiChoiceModeListener(modeListener);
+        }
         listViewTransportLine.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -85,6 +107,8 @@ public class TransportLine extends AppCompatActivity {
 
             }
         });
+
+        searchTransport(getApplicationContext(),transportType);
     }
 
     @Override
@@ -92,6 +116,64 @@ public class TransportLine extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
+    AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+            if(UserSelection.contains(tpList.get(position))){
+                UserSelection.remove(tpList.get(position));
+            }else{
+                UserSelection.add(tpList.get(position));
+            }
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
+
+            mode.setTitle(UserSelection.size() + " items selected...");
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            updateButton = menu.findItem(R.id.action_update);
+            if(UserSelection.size()!=1){
+                updateButton.setVisible(false);
+            }else{
+                updateButton.setVisible(true);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.action_delete:
+                    transportAdapter.removeItems(UserSelection);
+                    mode.finish();
+                    return true;
+                case R.id.action_update:
+                    transportAdapter.updateItems(UserSelection);
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            UserSelection.clear();
+        }
+    };
 
     private boolean isConnected() {
         ConnectivityManager cm =

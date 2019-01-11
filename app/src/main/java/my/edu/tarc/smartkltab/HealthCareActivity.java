@@ -1,10 +1,12 @@
 package my.edu.tarc.smartkltab;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -52,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static android.view.View.VISIBLE;
+
 public class HealthCareActivity extends AppCompatActivity{
 
     public static final String TAG = "my.edu.tarc.testsmartkl";
@@ -66,7 +70,9 @@ public class HealthCareActivity extends AppCompatActivity{
     MenuItem updateButton;
 
     RequestQueue queue;
-
+    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
+    private SharedPreferences sharedPreferences;
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,14 +84,13 @@ public class HealthCareActivity extends AppCompatActivity{
         listViewHealthCare = (ListView) findViewById(R.id.listViewHealthCare);
         pDialog = new ProgressDialog(this);
         hcList = new ArrayList<>();
+        sharedPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
 
         if (!isConnected()) {
             Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_LONG).show();
         }
         downloadHealthCare(getApplicationContext(), GET_URL);
 
-        listViewHealthCare.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        listViewHealthCare.setMultiChoiceModeListener(modeListener);
        healthcareAdapter = new HealthCareAdapter(this,0,hcList);
        listViewHealthCare.setAdapter(healthcareAdapter);
 
@@ -99,6 +104,11 @@ public class HealthCareActivity extends AppCompatActivity{
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        if(sharedPreferences.getString("usertype","").equals("admin")){
+            listViewHealthCare.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+            listViewHealthCare.setMultiChoiceModeListener(modeListener);
+            fab.setVisibility(VISIBLE);
+        }
 
         listViewHealthCare.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

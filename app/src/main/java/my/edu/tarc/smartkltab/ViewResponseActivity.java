@@ -1,7 +1,11 @@
 package my.edu.tarc.smartkltab;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +48,9 @@ public class ViewResponseActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
     private EditText editTextRepDesc;
     private TextView textViewS, textViewD;
+    private SharedPreferences sharedPreferences;
+    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
+
     //TODO: Please update the URL to point to your own server
     private static String SEARCH_URL = "https://circumgyratory-gove.000webhostapp.com/search_feedbackresponse.php";
     RequestQueue queue;
@@ -51,9 +58,10 @@ public class ViewResponseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_response);
+        sharedPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -75,6 +83,7 @@ public class ViewResponseActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("ResourceAsColor")
     public void onButtonShowPopupWindowClick(View view) {
 
         // inflate the layout of the popup window
@@ -90,7 +99,9 @@ public class ViewResponseActivity extends AppCompatActivity {
 
         // show the popup window
         // which view you pass in doesn't matter, it is only used for the window tolken
+        popupWindow.setBackgroundDrawable(new ColorDrawable(android.R.color.white));
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
         editTextRepDesc=(EditText)popupView.findViewById(R.id.editTextDesc);
 
         // dismiss the popup window when touched
@@ -102,29 +113,31 @@ public class ViewResponseActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     public void saveRecord(View v) {
-        int currentid = Integer.parseInt(getIntent().getStringExtra("currentid"));
-        String currentUserType = getIntent().getStringExtra("currentUserType");
+        int currentid = sharedPreferences.getInt("id", 0);
         int searchfeedbackid= Integer.parseInt(getIntent().getStringExtra("currentFeedbackID"));
         FeedbackResponses feedbackres = new FeedbackResponses();
         Date currentTime = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
         String timeDate = df.format(currentTime);
 
+        if (editTextRepDesc.getText().toString().matches("")) {
+            Toast.makeText(this, "You did not enter a description", Toast.LENGTH_SHORT).show();
+            return;
+        }else{
         feedbackres.setFeedbackID(searchfeedbackid);
         feedbackres.setResponseDesc(editTextRepDesc.getText().toString());
         feedbackres.setResponseDate(timeDate);
 
-        if(currentUserType.equals("admin")) {
+        if(sharedPreferences.getString("usertype", "").equals("admin")) {
             feedbackres.setOfficerID(currentid);
         }
 
         try {
             //TODO: Please update the URL to point to your own server
-            if(currentUserType.equals("admin")) {
+            if(sharedPreferences.getString("usertype", "").equals("admin")) {
                 addResponse(this, "https://circumgyratory-gove.000webhostapp.com/insert_response.php", feedbackres);
             }else{
                 addResponse(this, "https://circumgyratory-gove.000webhostapp.com/insert_response1.php", feedbackres);
@@ -134,9 +147,9 @@ public class ViewResponseActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+    }
 
     public void addResponse(Context context, String url, final FeedbackResponses feedbackres) {
-        final String currentUserType = getIntent().getStringExtra("currentUserType");
         //mPostCommentResponse.requestStarted();
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -175,7 +188,7 @@ public class ViewResponseActivity extends AppCompatActivity {
                     Map<String, String> params = new HashMap<>();
                     params.put("FeedbackID", String.valueOf(feedbackres.getFeedbackID()));
                     params.put("RespDesc", feedbackres.getResponseDesc());
-                    if(currentUserType.equals("admin")){
+                    if(sharedPreferences.getString("usertype", "").equals("admin")){
                         params.put("OfficerID", String.valueOf(feedbackres.getOfficerID()));
                     }
                     params.put("RespDate", feedbackres.getResponseDate());
@@ -253,7 +266,7 @@ public class ViewResponseActivity extends AppCompatActivity {
             if(size > 0)
                 Toast.makeText(getApplicationContext(), "No. of record : " + size + ".", Toast.LENGTH_SHORT).show();
             else
-                Toast.makeText(getApplicationContext(), "No record found.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "No response found.", Toast.LENGTH_SHORT).show();
         }
     }
 

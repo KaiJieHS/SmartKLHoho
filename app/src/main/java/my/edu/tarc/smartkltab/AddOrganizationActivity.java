@@ -1,16 +1,12 @@
 package my.edu.tarc.smartkltab;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -24,36 +20,27 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddFeedbackActivity extends AppCompatActivity {
-    EditText editTextSubject, editTextDesc;
-    RadioGroup radioGroupType;
-    RadioButton buttonSug, buttonPro;
-    private SharedPreferences sharedPreferences;
-    public static final String FILE_NAME = "my.edu.tarc.smartkltab";
+public class AddOrganizationActivity extends AppCompatActivity {
+
+    EditText editTextName, editTextAddress, editTextContact;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_feedback2);
-        sharedPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
+        setContentView(R.layout.activity_add_organization);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        editTextSubject = findViewById(R.id.editTextSubject);
-        editTextDesc =  findViewById(R.id.editTextDesc);
-        buttonSug = findViewById(R.id.radioButton3);
-        buttonPro = findViewById(R.id.radioButton4);
-        radioGroupType = findViewById(R.id.radioGroupType);
-        buttonPro.setChecked(true);
+        editTextName = findViewById(R.id.editTextName);
+        editTextAddress =  findViewById(R.id.editTextAddress);
+        editTextContact = findViewById(R.id.editTextContact);
     }
     @Override
     public boolean onSupportNavigateUp() {
@@ -61,43 +48,24 @@ public class AddFeedbackActivity extends AppCompatActivity {
         return true;
     }
 
-    public void saveRecord(View v) {
-        if (editTextSubject.getText().toString().matches("")) {
-            Toast.makeText(this, "You did not enter a subject", Toast.LENGTH_SHORT).show();
-            return;
-        } else if (editTextDesc.getText().toString().matches("")) {
-            Toast.makeText(this, "You did not enter a description", Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            Feedback feedback = new Feedback();
-            Date currentTime = Calendar.getInstance().getTime();
-            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
-            String timeDate = df.format(currentTime);
-            String type = "";
-            if (radioGroupType.getCheckedRadioButtonId() == R.id.radioButton3) {
-                type = "Suggestion";
-            } else if (radioGroupType.getCheckedRadioButtonId() == R.id.radioButton4) {
-                type = "Problems";
-            }
+    public void saveRecordOrg(View v) {
+        Organization organization = new Organization();
 
-            feedback.setFeedbackType(type);
-            feedback.setSubject(editTextSubject.getText().toString());
-            feedback.setDescription(editTextDesc.getText().toString());
-            feedback.setDate(timeDate);
-            feedback.setCitizenID(sharedPreferences.getInt("id", 0));
-            feedback.setStatus("waiting");
+        organization.setOrgName(editTextName.getText().toString());
+        organization.setOrgBranchLocation(editTextAddress.getText().toString());
+        organization.setOrgContactNum(editTextContact.getText().toString());
 
-            try {
-                //TODO: Please update the URL to point to your own server
-                addFeedback(this, "https://circumgyratory-gove.000webhostapp.com/insert_feedback.php", feedback);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
+
+        try {
+            //TODO: Please update the URL to point to your own server
+            addOrganization(this, "https://circumgyratory-gove.000webhostapp.com/insert_organization.php", organization);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    public void addFeedback(Context context, String url, final Feedback feedback) {
+    public void addOrganization(Context context, String url, final Organization organization) {
         //mPostCommentResponse.requestStarted();
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -118,7 +86,8 @@ public class AddFeedbackActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                                 }else{
                                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                    finish();
+                                    Intent intent = new Intent(AddOrganizationActivity.this,OrganizationActivity.class);
+                                    startActivity(intent);
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -134,12 +103,9 @@ public class AddFeedbackActivity extends AppCompatActivity {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
-                    params.put("FeedbackTitle", feedback.getSubject());
-                    params.put("FeedbackDesc", feedback.getDescription());
-                    params.put("FeedbackType", feedback.getFeedbackType());
-                    params.put("FeedbackDate", feedback.getDate());
-                    params.put("CitizenID", String.valueOf(feedback.getCitizenID()));
-                    params.put("Status", feedback.getStatus());
+                    params.put("OrgName", organization.getOrgName());
+                    params.put("OrgBranchLocation", organization.getOrgBranchLocation());
+                    params.put("OrgContactNum", organization.getOrgContactNum());
                     return params;
                 }
 
@@ -155,7 +121,4 @@ public class AddFeedbackActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
-
 }

@@ -1,11 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    >
-    <android.support.v7.widget.AppCompatTextView
-        android:layout_width="wrap_content"
+    android:gravity="center"><![CDATA[
+
+        android:id="@+id/registerForm"
+        android:layout_width="match_parent"
+        android:layout_height="364dp"
+        android:orientation="vertical">
+
+
+
+    ]]>
+
+    <EditText
+            android:id="@+id/editTextUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/username" />
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btnLoginCitizen"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Me Fragment"/>
+        android:text="@string/button_login_citizen" />
+
+    <Button
+        android:id="@+id/btnLoginOfficer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_login_officer" />
+
+    <TextView
+        android:id="@+id/textViewRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/registerForm"
+        android:text="@string/create_acc" />
 </LinearLayout>

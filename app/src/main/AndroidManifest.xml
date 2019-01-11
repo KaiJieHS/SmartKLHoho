@@ -29,7 +29,7 @@
         <activity
             android:name=".AddFeedbackActivity"
             android:label="@string/title_activity_add_feedback"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".TransportActivity"
             android:label="@string/title_activity_transport"
@@ -57,7 +57,11 @@
         </activity>
         <activity android:name=".AddHealthCareActivity" />
         <activity android:name=".AddTransportLineActivity" />
-        <activity android:name=".UpdateHealthCare"></activity>
+        <activity android:name=".UpdateHealthCare" />
+        <activity android:name=".AddOrganizationActivity" />
+        <activity android:name=".UpdateOrganization" />
+        <activity android:name=".UpdateTransport"></activity>
+        <activity android:name=".RegisterActivity" />
     </application>
 
 </manifest>
