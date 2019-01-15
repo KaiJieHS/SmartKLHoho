@@ -57,8 +57,9 @@ public class OrganizationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organization);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        /*Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);*/
+        setTitle("Organization List");
 
         listViewOrganization = (ListView) findViewById(R.id.listViewOrganization);
         pDialog = new ProgressDialog(this);
@@ -82,7 +83,7 @@ public class OrganizationActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
 
         downloadOrganization(getApplicationContext(), GET_URL);
         if(sharedPreferences.getString("usertype","").equals("admin")){

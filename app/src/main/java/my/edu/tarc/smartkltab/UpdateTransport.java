@@ -57,15 +57,23 @@ public class UpdateTransport extends AppCompatActivity {
 
     public void updateRecordT(View v) {
 
-        updateItem = spinnerUpdateItem.getSelectedItem().toString();
-        updateContent = editTextUpdateContent.getText().toString();
+        if(editTextUpdateContent.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Update Content",Toast.LENGTH_SHORT).show();
+            return;
 
-        try {
-            //TODO: Please update the URL to point to your own server
-            updateOrganization(this, "https://circumgyratory-gove.000webhostapp.com/update_transport.php",TransportID, updateItem, updateContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }else {
+
+            updateItem = spinnerUpdateItem.getSelectedItem().toString();
+            updateContent = editTextUpdateContent.getText().toString();
+
+            try {
+                //TODO: Please update the URL to point to your own server
+                updateOrganization(this, "https://circumgyratory-gove.000webhostapp.com/update_transport.php", TransportID, updateItem, updateContent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 

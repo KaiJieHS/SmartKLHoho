@@ -62,19 +62,26 @@ public class UpdateHealthCare extends AppCompatActivity {
 
     public void updateRecordHc(View v) {
 
-        updateItem = spinnerUpdateItem.getSelectedItem().toString();
-        updateContent = editTextUpdateContent.getText().toString();
+        if(editTextUpdateContent.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Update Content",Toast.LENGTH_SHORT).show();
+            return;
 
-        try {
-            //TODO: Please update the URL to point to your own server
-            updateHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/update_healthcare.php",HcID, updateItem, updateContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }else {
+
+            updateItem = spinnerUpdateItem.getSelectedItem().toString();
+            updateContent = editTextUpdateContent.getText().toString();
+
+            try {
+                //TODO: Please update the URL to point to your own server
+                updateHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/update_healthcare.php", HcID, updateItem, updateContent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
-    public void updateHealthCare(Context context, String url,int id, String updateItem, String updateContent) {
+    public void updateHealthCare(Context context, String url, int id, String updateItem, String updateContent) {
         //mPostCommentResponse.requestStarted();
         RequestQueue queue = Volley.newRequestQueue(context);
         url = url + "?HcID=" + id + "&UpdateItem=" + updateItem + "&UpdateContent=" + updateContent;

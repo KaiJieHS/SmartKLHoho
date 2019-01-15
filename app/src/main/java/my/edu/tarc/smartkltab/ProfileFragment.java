@@ -78,6 +78,7 @@ public class ProfileFragment extends Fragment {
         editor.putString("email", "");
         editor.apply();
         SharedPrefManager.getInstance(this.getActivity()).logout();
+
         getActivity().finish();
         startActivity(new Intent(this.getActivity(), MainActivity.class));
     }

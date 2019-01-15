@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ public class HealthCareAdapter extends ArrayAdapter<HealthCare> {
     private List<HealthCare> healthCare = new ArrayList<>();
     private Activity context;
 
+
     public HealthCareAdapter(Activity context, int resource, List<HealthCare> list) {
         super(context, resource, list);
         this.healthCare = list;
@@ -54,6 +56,7 @@ public class HealthCareAdapter extends ArrayAdapter<HealthCare> {
         textViewHcBranchName.setText(String.format("%s" ,healthcare.getHcBranchName()));
         textViewHcBranchLocation.setText(String.format("%s" ,healthcare.getHcBranchLocation()));
         textViewHcContactNumber.setText(String.format("%s" ,healthcare.getHcContactNumber()));
+
         return rowView;
     }
 

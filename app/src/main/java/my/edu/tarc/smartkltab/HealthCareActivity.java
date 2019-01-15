@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -77,9 +78,9 @@ public class HealthCareActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_health_care);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);*/
+        setTitle("Health Care List");
 
         listViewHealthCare = (ListView) findViewById(R.id.listViewHealthCare);
         pDialog = new ProgressDialog(this);
@@ -102,7 +103,7 @@ public class HealthCareActivity extends AppCompatActivity{
                 startActivity(intent);
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
 
         if(sharedPreferences.getString("usertype","").equals("admin")){
             listViewHealthCare.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -110,6 +111,7 @@ public class HealthCareActivity extends AppCompatActivity{
             fab.setVisibility(VISIBLE);
         }
 
+        //map intent
         listViewHealthCare.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -131,6 +133,7 @@ public class HealthCareActivity extends AppCompatActivity{
     AbsListView.MultiChoiceModeListener modeListener = new AbsListView.MultiChoiceModeListener() {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
             if(UserSelection.contains(hcList.get(position))){
                  UserSelection.remove(hcList.get(position));
             }else{
@@ -166,6 +169,7 @@ public class HealthCareActivity extends AppCompatActivity{
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
             switch (item.getItemId()){
                 case R.id.action_delete:
                     healthcareAdapter.removeItems(UserSelection);
@@ -186,31 +190,7 @@ public class HealthCareActivity extends AppCompatActivity{
         }
     };
 
-   /* @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
 
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_healthcare, menu);
-
-        return true;
-    }*/
-
-
-   /* @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        //here to add action for the apps bar
-        if (id == R.id.action_setting) {
-            Intent intent = new Intent(this, UpdateHealthCare.class);
-            startActivity(intent);
-
-            //Toast.makeText(MainActivity.this, "Search Button Is Clicked.", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
 
     private boolean isConnected() {
         ConnectivityManager cm =

@@ -58,17 +58,29 @@ public class AddHealthCareActivity extends AppCompatActivity {
     public void saveRecordHc(View v) {
         HealthCare healthcare = new HealthCare();
 
-        healthcare.setHcBranchName(editTextName.getText().toString());
-        healthcare.setHcBranchLocation(editTextAddress.getText().toString());
-        healthcare.setHcContactNumber(editTextContact.getText().toString());
+        if(editTextName.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Hospital Name",Toast.LENGTH_SHORT).show();
+            return;
+        }else if(editTextAddress.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Address",Toast.LENGTH_SHORT).show();
+            return;
+        }else if(editTextContact.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Contact Number",Toast.LENGTH_SHORT).show();
+            return;
+        }else {
+
+            healthcare.setHcBranchName(editTextName.getText().toString());
+            healthcare.setHcBranchLocation(editTextAddress.getText().toString());
+            healthcare.setHcContactNumber(editTextContact.getText().toString());
 
 
-        try {
-            //TODO: Please update the URL to point to your own server
-            addHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/insert_healthcare.php", healthcare);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            try {
+                //TODO: Please update the URL to point to your own server
+                addHealthCare(this, "https://circumgyratory-gove.000webhostapp.com/insert_healthcare.php", healthcare);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 

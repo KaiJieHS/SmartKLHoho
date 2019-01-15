@@ -51,17 +51,30 @@ public class AddOrganizationActivity extends AppCompatActivity {
     public void saveRecordOrg(View v) {
         Organization organization = new Organization();
 
-        organization.setOrgName(editTextName.getText().toString());
-        organization.setOrgBranchLocation(editTextAddress.getText().toString());
-        organization.setOrgContactNum(editTextContact.getText().toString());
+        if(editTextName.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Organization Name",Toast.LENGTH_SHORT).show();
+            return;
+        }else if(editTextAddress.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Address",Toast.LENGTH_SHORT).show();
+            return;
+        }else if(editTextContact.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Contact Number",Toast.LENGTH_SHORT).show();
+            return;
+        }else {
 
 
-        try {
-            //TODO: Please update the URL to point to your own server
-            addOrganization(this, "https://circumgyratory-gove.000webhostapp.com/insert_organization.php", organization);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            organization.setOrgName(editTextName.getText().toString());
+            organization.setOrgBranchLocation(editTextAddress.getText().toString());
+            organization.setOrgContactNum(editTextContact.getText().toString());
+
+
+            try {
+                //TODO: Please update the URL to point to your own server
+                addOrganization(this, "https://circumgyratory-gove.000webhostapp.com/insert_organization.php", organization);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 

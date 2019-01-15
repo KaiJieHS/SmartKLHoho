@@ -38,11 +38,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="my.edu.tarc.smartkltab.MainActivity" />
         </activity>
-        <activity android:name=".TransportLine" />
+        <activity android:name=".TransportLine"
+            android:theme="@style/AppTheme2"/>
         <activity
             android:name=".HealthCareActivity"
             android:label="@string/title_activity_health_care"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme2">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="my.edu.tarc.smartkltab.MainActivity" />
@@ -50,7 +52,8 @@
         <activity
             android:name=".OrganizationActivity"
             android:label="@string/title_activity_organization"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme2">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="my.edu.tarc.smartkltab.MainActivity" />

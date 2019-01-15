@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +38,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static android.view.View.VISIBLE;
 
@@ -58,6 +62,7 @@ public class TransportLine extends AppCompatActivity {
     public static final String FILE_NAME = "my.edu.tarc.smartkltab";
     private SharedPreferences sharedPreferences;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,10 +70,11 @@ public class TransportLine extends AppCompatActivity {
 
         String transportType = getIntent().getStringExtra("TransportType");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       /* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);*/
+        setTitle("Transport Line");
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         listViewTransportLine = (ListView) findViewById(R.id.listViewTransportLine);
@@ -86,11 +92,11 @@ public class TransportLine extends AppCompatActivity {
         transportAdapter = new TransportAdapter(this,0,tpList);
         listViewTransportLine.setAdapter(transportAdapter);
 
-
         if(sharedPreferences.getString("usertype","").equals("admin")){
             listViewTransportLine.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
             listViewTransportLine.setMultiChoiceModeListener(modeListener);
         }
+
         listViewTransportLine.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -59,17 +59,26 @@ public class AddTransportLineActivity extends AppCompatActivity {
     public void saveRecordTl(View v) {
         Transport transport = new Transport();
 
-        transport.setTransportType(spinnerType.getSelectedItem().toString());
-        transport.setTransportLine(editTextTransportLine.getText().toString());
-        transport.setTransportSchedule(editTextScheduleURL.getText().toString());
+        if(editTextTransportLine.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the Transport Line",Toast.LENGTH_SHORT).show();
+            return;
+        }else if(editTextScheduleURL.getText().toString().matches("")){
+            Toast.makeText(this,"Please enter the URL",Toast.LENGTH_SHORT).show();
+            return;
+
+        }else {
+            transport.setTransportType(spinnerType.getSelectedItem().toString());
+            transport.setTransportLine(editTextTransportLine.getText().toString());
+            transport.setTransportSchedule(editTextScheduleURL.getText().toString());
 
 
-        try {
-            //TODO: Please update the URL to point to your own server
-            addTransport(this, "https://circumgyratory-gove.000webhostapp.com/insert_transport.php", transport);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            try {
+                //TODO: Please update the URL to point to your own server
+                addTransport(this, "https://circumgyratory-gove.000webhostapp.com/insert_transport.php", transport);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
