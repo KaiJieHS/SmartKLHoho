@@ -151,8 +151,7 @@ String type=sharedPreferences.getString("usertype","");
 
     private void searchWaitingListFeedback(Context context) {
         queue = Volley.newRequestQueue(context);
-        String status = "waiting";
-        String url = SEARCHWAITINGLIST_URL +"?Status=" +status;
+        String url = SEARCHWAITINGLIST_URL;
 
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(
                 url,

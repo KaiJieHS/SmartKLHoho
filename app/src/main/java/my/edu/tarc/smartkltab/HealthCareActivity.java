@@ -117,8 +117,11 @@ public class HealthCareActivity extends AppCompatActivity{
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 String uri = hcList.get(position).getHcBranchLocation();
+                //create an intent and set the action to ACTION_VIEW
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+                //search for a location
                 mapIntent.setData(Uri.parse("geo:0,0?q="+uri));
+                //make the intent explicit by setting the google map package
                 mapIntent.setPackage("com.google.android.apps.maps");
                 if (mapIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(mapIntent);

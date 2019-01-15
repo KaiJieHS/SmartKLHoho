@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -52,9 +53,9 @@ public class FragmentMe extends Fragment {
         sharedPreferences = getActivity().getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
 
         //if(SharedPrefManager.getInstance(getActivity()).isLoggedIn()){
-         //   getActivity().finish();
+        //   getActivity().finish();
         //    startActivity(new Intent(getActivity(),ProfileActivity.class));
-       // }
+        // }
 
         progressDialog = new ProgressDialog(getActivity());
         String text = "Not a user? Register now";
@@ -86,6 +87,7 @@ public class FragmentMe extends Fragment {
             public void onClick(View v)
             {
                 citizenLogin();
+
             }
         });
 
@@ -104,7 +106,7 @@ public class FragmentMe extends Fragment {
 
     }
 
-    private void citizenLogin(){
+    public void citizenLogin(){
         final String username = editTextUserName.getText().toString().trim();
         final String password = editTextPassword.getText().toString().trim();
         progressDialog.setMessage("Login...");
@@ -112,70 +114,75 @@ public class FragmentMe extends Fragment {
 
         String URL = "https://circumgyratory-gove.000webhostapp.com/citizen_login.php?CUserName="+ username  + "&CPassword="+ password  ;
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                progressDialog.dismiss();
+        if(!validate()){
+            Toast.makeText(getActivity().getApplicationContext(),"",Toast.LENGTH_LONG).show();
+            progressDialog.dismiss();
+        }else {
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    progressDialog.dismiss();
 
-                final JSONObject jsonObject;
-                try {
-                    jsonObject = new JSONObject(response);
-                    final int success = jsonObject.getInt("success");
-                    final String message = jsonObject.getString("message");
-                    new android.os.Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (success == 0) {
-                                progressDialog.dismiss();
-                                Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    final JSONObject jsonObject;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        final int success = jsonObject.getInt("success");
+                        final String message = jsonObject.getString("message");
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (success == 0) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
 
-                            } else {
-                                Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                getActivity().finish();
-                                //SharedPrefManager.getInstance(getApplicationContext()).userLogin("name","phoneNo","email");
+                                } else {
+                                    Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                    getActivity().finish();
+                                    //SharedPrefManager.getInstance(getApplicationContext()).userLogin("name","phoneNo","email");
 
-                                try{
-                                    JSONObject citizenJson = jsonObject.getJSONObject("citizen");
+                                    try {
+                                        JSONObject citizenJson = jsonObject.getJSONObject("citizen");
 
-                                    user citizen = new user(
-                                            citizenJson.getInt("CitizenID"),
-                                            citizenJson.getString("CName"),
-                                            citizenJson.getString("CPhoneNo"),
-                                            citizenJson.getString("CEmail")
-                                    );
+                                        user citizen = new user(
+                                                citizenJson.getInt("CitizenID"),
+                                                citizenJson.getString("CName"),
+                                                citizenJson.getString("CPhoneNo"),
+                                                citizenJson.getString("CEmail")
+                                        );
 
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("usertype", "user");
-                                    editor.putInt("id", citizen.getId());
-                                    editor.putString("name", citizen.getName());
-                                    editor.putString("phoneno", citizen.getPhoneno());
-                                    editor.putString("email", citizen.getEmail());
-                                    editor.apply();
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("usertype", "user");
+                                        editor.putInt("id", citizen.getId());
+                                        editor.putString("name", citizen.getName());
+                                        editor.putString("phoneno", citizen.getPhoneno());
+                                        editor.putString("email", citizen.getEmail());
+                                        editor.apply();
 
-                                }catch(JSONException e){
-                                    e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    startActivity(new Intent(getActivity().getApplicationContext(), MainActivity.class));
+                                    progressDialog.dismiss();
+
                                 }
-                                startActivity(new Intent(getActivity().getApplicationContext(),MainActivity.class));
-                                progressDialog.dismiss();
-
                             }
-                        }
-                    }, 1000);
+                        }, 1000);
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
-                Toast.makeText(getActivity().getApplicationContext(),error.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        }){
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    Toast.makeText(getActivity().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }) {
 
-        };
-        RequestHandler.getInstance(this.getActivity()).addToRequestQueue(stringRequest);
+            };
+            RequestHandler.getInstance(this.getActivity()).addToRequestQueue(stringRequest);
+        }
     }
 
     private void officerLogin(){
@@ -185,69 +192,86 @@ public class FragmentMe extends Fragment {
         progressDialog.show();
 
         String URL2 = "https://circumgyratory-gove.000webhostapp.com/officer_login.php?OUserName="+ username  + "&OPassword="+ password  ;
+        if(!validate()){
+            Toast.makeText(getActivity().getApplicationContext(),"",Toast.LENGTH_LONG).show();
+            progressDialog.dismiss();
+        }else {
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, URL2, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    progressDialog.dismiss();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL2, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                progressDialog.dismiss();
+                    final JSONObject jsonObject;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        final int success = jsonObject.getInt("success");
+                        final String message = jsonObject.getString("message");
+                        new android.os.Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (success == 0) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
 
-                final JSONObject jsonObject;
-                try {
-                    jsonObject = new JSONObject(response);
-                    final int success = jsonObject.getInt("success");
-                    final String message = jsonObject.getString("message");
-                    new android.os.Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (success == 0) {
-                                progressDialog.dismiss();
-                                Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                    getActivity().finish();
+                                    try {
+                                        JSONObject officerJson = jsonObject.getJSONObject("officer");
 
-                            } else {
-                                Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                                getActivity().finish();
-                                try{
-                                    JSONObject officerJson = jsonObject.getJSONObject("officer");
+                                        user officer = new user(
+                                                officerJson.getInt("OfficerID"),
+                                                officerJson.getString("OName"),
+                                                officerJson.getString("OPhoneNo"),
+                                                officerJson.getString("OEmail")
+                                        );
 
-                                    user officer = new user(
-                                            officerJson.getInt("OfficerID"),
-                                            officerJson.getString("OName"),
-                                            officerJson.getString("OPhoneNo"),
-                                            officerJson.getString("OEmail")
-                                    );
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("usertype", "admin");
+                                        editor.putInt("id", officer.getId());
+                                        editor.putString("name", officer.getName());
+                                        editor.putString("phoneno", officer.getPhoneno());
+                                        editor.putString("email", officer.getEmail());
+                                        editor.apply();
 
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("usertype", "admin");
-                                    editor.putInt("id", officer.getId());
-                                    editor.putString("name", officer.getName());
-                                    editor.putString("phoneno", officer.getPhoneno());
-                                    editor.putString("email", officer.getEmail());
-                                    editor.apply();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    startActivity(new Intent(getActivity().getApplicationContext(), MainActivity.class));
+                                    progressDialog.dismiss();
 
-                                }catch(JSONException e){
-                                    e.printStackTrace();
+
                                 }
-                                startActivity(new Intent(getActivity().getApplicationContext(),MainActivity.class));
-                                progressDialog.dismiss();
-
-
                             }
-                        }
-                    }, 1000);
+                        }, 1000);
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
-                Toast.makeText(getActivity().getApplicationContext(),error.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        }){
-        };
-        RequestHandler.getInstance(this.getActivity()).addToRequestQueue(stringRequest);
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    Toast.makeText(getActivity().getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }) {
+            };
+            RequestHandler.getInstance(this.getActivity()).addToRequestQueue(stringRequest);
+        }
     }
 
+    private boolean validate(){
+        boolean valid = true;
+
+        if(editTextUserName.getText().toString().trim().isEmpty()){
+            editTextUserName.setError("Please enter your username");
+            valid = false;
+        }
+        if(editTextPassword.getText().toString().trim().isEmpty()){
+            editTextPassword.setError("Please enter your password");
+            valid = false;
+        }
+        return valid;
+    }
 }

@@ -11,6 +11,7 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +29,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,8 +49,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //if(SharedPrefManager.getInstance(this).isLoggedIn()){
-           // finish();
-            //startActivity(new Intent(this,ProfileActivity.class));
+        // finish();
+        //startActivity(new Intent(this,ProfileActivity.class));
         //}
 
         editTextUsername = (EditText)findViewById(R.id.editTextUserName);
@@ -77,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         if(view == buttonRegisterCitizen) {
             if(editTextPassword.getText().toString().equals(editTextConfirmPassword.getText().toString())) {
                 registerCitizen();
-                finish();
+
             }else{
                 Toast.makeText(getApplicationContext(),"Sorry 2 password must be same",Toast.LENGTH_LONG).show();
                 editTextPassword.setText("");
@@ -105,42 +107,46 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         progressDialog.setMessage("Registering Citizen...");
         progressDialog.show();
 
+        if(!validate()){
+            progressDialog.dismiss();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://circumgyratory-gove.000webhostapp.com/registerCitizen.php", new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    System.out.println(response);
-                    JSONObject jsonObject = new JSONObject(response);
-                    Toast.makeText(getApplicationContext(),jsonObject.getString("message"),Toast.LENGTH_LONG).show();
-                    //System.out.println(jsonObject.getString("message"));
-                    //progressDialog.dismiss();
-
-                }catch(JSONException e){
-                    e.printStackTrace();
+        }else {
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://circumgyratory-gove.000webhostapp.com/registerCitizen.php", new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        System.out.println(response);
+                        JSONObject jsonObject = new JSONObject(response);
+                        Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                        //System.out.println(jsonObject.getString("message"));
+                        progressDialog.dismiss();
+                        finish();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
-                System.out.println(error.getMessage());
-                Toast.makeText(getApplicationContext(),error.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("CUserName", username);
-                params.put("CPassword", password);
-                params.put("CName", name);
-                params.put("CPhoneNo", phoneNo);
-                params.put("CEmail", email);
-                return params;
-            }
-        };
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    System.out.println(error.getMessage());
+                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("CUserName", username);
+                    params.put("CPassword", password);
+                    params.put("CName", name);
+                    params.put("CPhoneNo", phoneNo);
+                    params.put("CEmail", email);
+                    return params;
+                }
+            };
 
-        RequestHandler.getInstance(this).addToRequestQueue(stringRequest);
+            RequestHandler.getInstance(this).addToRequestQueue(stringRequest);
+        }
     }
 
     public void registerOfficer() {
@@ -152,39 +158,75 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         progressDialog.setMessage("Registering Officer...");
         progressDialog.show();
 
+        if(!validate()){
+            progressDialog.dismiss();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://circumgyratory-gove.000webhostapp.com/registerOfficer.php", new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    System.out.println(response);
-                    JSONObject jsonObject = new JSONObject(response);
-                    Toast.makeText(getApplicationContext(),jsonObject.getString("message"),Toast.LENGTH_LONG).show();
+        }else {
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://circumgyratory-gove.000webhostapp.com/registerOfficer.php", new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        System.out.println(response);
+                        JSONObject jsonObject = new JSONObject(response);
+                        Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        finish();
 
-                }catch(JSONException e){
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
-                System.out.println(error.getMessage());
-                Toast.makeText(getApplicationContext(),error.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("OUserName", username);
-                params.put("OPassword", password);
-                params.put("OName", name);
-                params.put("OPhoneNo", phoneNo);
-                params.put("OEmail", email);
-                return params;
-            }
-        };
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    System.out.println(error.getMessage());
+                    Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("OUserName", username);
+                    params.put("OPassword", password);
+                    params.put("OName", name);
+                    params.put("OPhoneNo", phoneNo);
+                    params.put("OEmail", email);
+                    return params;
+                }
+            };
 
-        RequestHandler.getInstance(this).addToRequestQueue(stringRequest);
+            RequestHandler.getInstance(this).addToRequestQueue(stringRequest);
+        }
+    }
+
+    private boolean validate(){
+        boolean valid = true;
+
+        if(editTextUsername.getText().toString().trim().isEmpty()){
+            editTextUsername.setError("Please enter your username");
+            valid = false;
+        }
+        if(editTextPassword.getText().toString().trim().isEmpty()){
+            editTextPassword.setError("Please enter your password");
+            valid = false;
+        }
+        if(editTextConfirmPassword.getText().toString().trim().isEmpty()){
+            editTextConfirmPassword.setError("Please enter your password again");
+            valid = false;
+        }
+        if(editTextName.getText().toString().trim().isEmpty()){
+            editTextName.setError("Please enter your name");
+            valid = false;
+        }
+        if(editTextPhoneNo.getText().toString().trim().isEmpty()){
+            editTextPhoneNo.setError("Please enter your phone number");
+            valid = false;
+        }
+        if(editTextEmail.getText().toString().trim().isEmpty()||!Patterns.EMAIL_ADDRESS.matcher(editTextEmail.getText().toString().trim()).matches()){
+            editTextEmail.setError("Please enter your email / Invalid email format");
+            valid = false;
+        }
+        return valid;
     }
 }
