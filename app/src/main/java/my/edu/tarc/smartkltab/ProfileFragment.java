@@ -76,6 +76,7 @@ public class ProfileFragment extends Fragment {
         editor.putString("name", "");
         editor.putString("phoneno", "");
         editor.putString("email", "");
+        editor.putString("usertype","");
         editor.apply();
         SharedPrefManager.getInstance(this.getActivity()).logout();
 
